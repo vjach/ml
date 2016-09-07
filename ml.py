@@ -135,8 +135,8 @@ class Tuner(object):
                 for key in res_stats.keys():
                     res_stats[key] += res[key]
 
-            for key in res_stats.keys():
-                res_stats[key] /= vcount
+        for key in res_stats.keys():
+            res_stats[key] /= vcount
 
         return res_stats
    

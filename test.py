@@ -4,15 +4,16 @@ import matplotlib.pyplot as plt
 import data
 import ml
 
-x, y = data.load('ex2data1.txt')
-cls = ml.kNN()
-cls.train(x, y)
+x, y = data.load('data1.txt')
+x2, y2 = data.load('data2.txt')
+params = {'k' : 6, 'weights' : [1, 1]}
+cls = ml.kNN(x, y, params)
+cls.train()
+eval_y = cls.predict(x2)
+print eval_y
+print y2
 
-xmap = np.array([[x1, x2] for x1 in np.linspace(20, 100, 100) for x2 in np.linspace(20, 100, 100)])
-print xmap[:, 0]
-color = ['r', 'b']
-color2 = ['black', 'white']
-ymap = [cls.predict(s, k=3, w=[.0, 1.]) for s in xmap]
-plt.scatter(xmap[:, 0], xmap[:, 1], c = [ color[c] for c in ymap ])
-plt.scatter(x[:, 0], x[:, 1], c = [ color2[c] for c in y ])
-plt.show()
+p = ml.Perf(eval_y, y2)
+print('Accuracy: {}'.format(p.accuracy()))
+print('Precision: {}'.format(p.precision()))
+print('Recall: {}'.format(p.recall()))

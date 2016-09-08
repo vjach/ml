@@ -1,1 +1,1 @@
-../tools/idx.py
+../../tools/idx.py

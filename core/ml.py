@@ -173,3 +173,51 @@ class Tuner(object):
             stats = self._loocv(cls_class, params)
             print stats
 
+
+    def _k_fold(self, cls_class, params, k=3):
+        res_stats = None
+        vcount = len(self.X)
+        cls_hist = [0] * self.classes
+        cls_div = [0] * self.classes
+
+        seg_size = len(self.Y) / k
+        for i in range(k):
+            train_X = np.concatenate((self.X[0 : i * seg_size], self.X[(i + 1) * seg_size :]))
+            train_Y = np.concatenate((self.Y[0 : i * seg_size], self.Y[(i + 1) * seg_size :]))
+            validate_X = self.X[i * seg_size : (i + 1) * seg_size]
+            validate_Y = self.Y[i * seg_size : (i + 1) * seg_size]
+            
+            print "len:", len(validate_Y)
+            print np.unique(validate_Y)
+
+            cls_local_hist = np.bincount(validate_Y)
+            cls_hist += cls_local_hist
+            cls_div += np.clip(cls_local_hist, 0, 1)
+            
+            res = Tuner.evaluate(train_X, train_Y, validate_X, validate_Y, self.classes, cls_class, params)
+            if not res_stats:
+                res_stats = res
+            else:
+                for key in res_stats.keys():
+                    res_stats[key] += res[key]
+
+        np.clip(cls_local_hist, 1, vcount, out=cls_local_hist)
+
+        print 'cls_hist', cls_hist
+        for key in res_stats.keys():
+            if type(res_stats[key]) is np.ndarray:
+                res_stats[key] /= cls_div
+                res_stats[key] = list(res_stats[key])
+            else:
+                res_stats[key] /= k
+
+        return res_stats
+   
+    def k_fold(self, cls_class, ranges, k=3):
+        pparams = cls_class.params_span(ranges)
+        for params in pparams:
+            print 'kNN with params:'
+            print params
+            stats = self._k_fold(cls_class, params, k)
+            print stats
+
